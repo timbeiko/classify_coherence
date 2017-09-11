@@ -18,3 +18,6 @@ An assumption in a lot of NLP work is that the input text is coherent, but that 
 #### PDTB Data
 Because the PDTB Data set requires a license, it is not included in this repo. In order to run the code from this project and add this data, you will need to create a top-level folder named 'data' and include the PDTB data set there. This folder is also necessary to store the output of `preprocess.py`.
 
+#### Notes to self
+
+- To get a single parsed sentence from 'parses.json', read it into 'data' and then: `data[0]['wsj_2276']['sentences'][0]`
