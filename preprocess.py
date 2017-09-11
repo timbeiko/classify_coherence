@@ -2,22 +2,30 @@ import json
 from random import randint, sample
 from collections import defaultdict
 
-# Importing relations data as a JSON object 
-data = []
-for line in open('data/relations-01-12-16-dev.json', 'r'):
+# Variables 
+data = []          
+arg2s = []         
+connectives = []    
+
+# Output files 
+relations_json = 'data/relations-01-12-16-dev.json'
+coherent_output = 'data/coherent-sentences.json'
+incoherent_output_arg2 = 'data/arg2-incoherent-sentences.json'
+incoherent_output_connective = 'data/connective-incoherent-sentences.json'
+
+# Helper methods 
+def output_sentences(sentences, output_file):
+    open(output_file, 'w') # Clear contents of file 
+
+    # Write sentences to output files 
+    with open(output_file, 'a+') as out:
+        for sentence in sentences:
+            json.dump(sentence, out)
+            out.write('\n')
+
+# Import relations data as a JSON object 
+for line in open(relations_json, 'r'):
     data.append(json.loads(line))
-
-# Clear data from output files
-open('data/coherent-sentences.json', 'w') 
-open('data/arg2-incoherent-sentences.json', 'w') 
-open('data/connective-incoherent-sentences.json', 'w') 
-
-# Used to create incoherent sentences 
-arg2s = [] 
-connectives = [] 
-
-# Remove sentences with Implicit connectives 
-data = filter(lambda line: line['Type'] != 'Implicit', data)
 
 # Only keep top level Sense
 for line in data:
@@ -27,8 +35,11 @@ for line in data:
         top_level_sense = split_sense[0]
     line['Sense'] = top_level_sense
 
-# Creating coherent sentences
-# Get Arg1, Arg2, Connective and Sense from each sample
+# Remove sentences with Implicit connectives 
+data = filter(lambda line: line['Type'] != 'Implicit', data)
+
+# Create coherent sentences
+coherent_sentences = []
 for line in data:
     sentence = {
         'Arg1Raw': line['Arg1']['RawText'],
@@ -36,19 +47,27 @@ for line in data:
         'ConnectiveRaw': line['Connective']['RawText'],
         'Sense': line['Sense'],
     }
+    coherent_sentences.append(sentence)
 
-    # Storing 'arg2s' and 'connectives' to create incoherent sentences afterwards
+    # Store 'arg2s' and 'connectives' to create incoherent sentences afterwards
     arg2s.append(line['Arg2']['RawText'])
-
     connective = {line['Connective']['RawText']: line['Sense']}
     connectives.append(connective)
 
-    # Write coherent sentences to output files 
-    with open('data/coherent-sentences.json', 'a+') as output_file:
-        json.dump(sentence, output_file)
-        output_file.write('\n')
+# Write coherent sentences to output files 
+output_sentences(coherent_sentences, coherent_output)
 
-# Creating incoherent sentences by swapping Arg2s
+# Create a set of unique connectives 
+unique_connectives = {}
+for i in iter(connectives):
+    for c, s in i.items():
+        if c not in unique_connectives:
+            unique_connectives[c] = [s]
+        elif s not in unique_connectives[c]:
+            unique_connectives[c].append(s)
+
+# Create incoherent sentences by swapping Arg2s
+incoherent_sentences = []
 for line in data:
     # Get a random Arg2
     index = randint(0, len(arg2s)-1)
@@ -67,32 +86,19 @@ for line in data:
         'Sense': line['Sense'],
     }
 
-    # Write incoherent sentences to output files 
-    with open('data/arg2-incoherent-sentences.json', 'a+') as output_file:
-        json.dump(incoherent_sentence, output_file)
-        output_file.write('\n')
-
-
-# Create a set of unique connectives 
-unique_connectives = {}
-for i in iter(connectives):
-    for c, s in i.items():
-        if c not in unique_connectives:
-            unique_connectives[c] = [s]
-        elif s not in unique_connectives[c]:
-            unique_connectives[c].append(s)
+    incoherent_sentences.append(incoherent_sentence)
+# Write incoherent sentences to output files 
+output_sentences(incoherent_sentences, incoherent_output_arg2)
 
 # Create incoherent sentences by swapping connectives
+incoherent_sentences = []
 for line in data:
     # Get a random connective
     connective_list = sample(unique_connectives, 1)
     connective = connective_list[0]
 
-    while ( # Ensure connective is not the same as the original
-            (connective == line['Connective']['RawText']) or 
-            # Ensure connective is does not have the same sense as the original
-            (len(unique_connectives[connective].intersection(set([line['Sense']]))) != 0)
-        ):
+    # Ensure connective does not have the same sense as the original
+    while ((len(set(unique_connectives[connective]).intersection(set([line['Sense']]))) != 0)):
         connective_list = sample(unique_connectives, 1)
         connective = connective_list[0]
 
@@ -102,9 +108,6 @@ for line in data:
         'ConnectiveRaw': connective,
         'Sense': next(iter(unique_connectives[connective])), # Issue: this will always be the first element (thus the first possible Sense)
     }
-
-    # Write incoherent sentences to output files 
-    with open('data/connective-incoherent-sentences.json', 'a+') as output_file:
-        json.dump(incoherent_sentence, output_file)
-        output_file.write('\n')
-
+    incoherent_sentences.append(incoherent_sentence)
+# Write incoherent sentences to output files 
+output_sentences(incoherent_sentences, incoherent_output_connective)
