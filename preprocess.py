@@ -19,6 +19,14 @@ connectives = []
 # Remove sentences with Implicit connectives 
 data = filter(lambda line: line['Type'] != 'Implicit', data)
 
+# Only keep top level Sense
+for line in data:
+    top_level_sense = ""
+    for sense in line['Sense']:
+        split_sense = sense.split('.', 1)
+        top_level_sense = split_sense[0]
+    line['Sense'] = top_level_sense
+
 # Creating coherent sentences
 # Get Arg1, Arg2, Connective and Sense from each sample
 for line in data:
@@ -32,9 +40,7 @@ for line in data:
     # Storing 'arg2s' and 'connectives' to create incoherent sentences afterwards
     arg2s.append(line['Arg2']['RawText'])
 
-    connective = {line['Connective']['RawText']: []}
-    for i in iter(line['Sense']):
-        connective[line['Connective']['RawText']].append(i)
+    connective = {line['Connective']['RawText']: line['Sense']}
     connectives.append(connective)
 
     # Write coherent sentences to output files 
@@ -52,7 +58,6 @@ for line in data:
     while (incoherentArg2 == line['Arg2']['RawText']):
         index = randint(0, len(arg2s)-1)
         incoherentArg2 = arg2s[index]
-
     arg2s.pop(index) 
 
     incoherent_sentence = {
@@ -73,13 +78,9 @@ unique_connectives = {}
 for i in iter(connectives):
     for c, s in i.items():
         if c not in unique_connectives:
-            unique_connectives[c] = []
-        for i in iter(s):
-            unique_connectives[c].append(i)
-
-# Remove duplicate senses from each connectives 
-for c, s, in unique_connectives.items():
-    unique_connectives[c] = set(s)
+            unique_connectives[c] = [s]
+        elif s not in unique_connectives[c]:
+            unique_connectives[c].append(s)
 
 # Create incoherent sentences by swapping connectives
 for line in data:
@@ -90,7 +91,7 @@ for line in data:
     while ( # Ensure connective is not the same as the original
             (connective == line['Connective']['RawText']) or 
             # Ensure connective is does not have the same sense as the original
-            (len(unique_connectives[connective].intersection(set(line['Sense']))) != 0)
+            (len(unique_connectives[connective].intersection(set([line['Sense']]))) != 0)
         ):
         connective_list = sample(unique_connectives, 1)
         connective = connective_list[0]
@@ -106,3 +107,4 @@ for line in data:
     with open('data/connective-incoherent-sentences.json', 'a+') as output_file:
         json.dump(incoherent_sentence, output_file)
         output_file.write('\n')
+
