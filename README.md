@@ -1,6 +1,9 @@
 # Classify Coherence
 An attempt to classify sentences from the Penn Discourse Treebank as either coherent or incoherent. 
 
+### [in progress] Detailed Report
+A detailled (in progress) report of this project can be found at https://www.overleaf.com/read/ngfcbdxkcgby
+
 ### Goal of project
 An assumption in a lot of NLP work is that the input text is coherent, but that may not always be true. My project will be to try and determine whether a sentence is coherent or not. To do this, I will use the PDTB data set, where sentences are broken down as Argument 1 (Arg1), Discourse Connector (DC) and Argument 2 (Arg2). On this data set, we will try two different experiments:
 
