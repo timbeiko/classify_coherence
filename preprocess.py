@@ -4,7 +4,6 @@ from collections import defaultdict
 
 # Variables 
 data = []          
-arg2s = []         
 connectives = []    
 
 # Output files 
@@ -50,38 +49,43 @@ for line in data:
     coherent_sentences.append(sentence)
 
     # Store 'arg2s' and 'connectives' to create incoherent sentences afterwards
-    arg2s.append(line['Arg2']['RawText'])
     connective = {line['Connective']['RawText']: line['Sense']}
     connectives.append(connective)
 
 # Write coherent sentences to output files 
 output_sentences(coherent_sentences, coherent_output)
 
-# Create a set of unique connectives 
-unique_connectives = {}
+# Create a set of unique connectives and their senses
+unique_connectives_senses = {}
 for i in iter(connectives):
     for c, s in i.items():
-        if c not in unique_connectives:
-            unique_connectives[c] = [s]
-        elif s not in unique_connectives[c]:
-            unique_connectives[c].append(s)
+        if c not in unique_connectives_senses:
+            unique_connectives_senses[c] = [s]
+        elif s not in unique_connectives_senses[c]:
+            unique_connectives_senses[c].append(s)
 
 # Create incoherent sentences by swapping Arg2s
 incoherent_sentences = []
+coherent_copy = list(coherent_sentences)
 for line in data:
-    # Get a random Arg2
-    index = randint(0, len(arg2s)-1)
-    incoherentArg2 = arg2s[index]
+    # Get a random sentence that is not the same as the current one
+    index = randint(0, len(coherent_copy)-1)
+    random_cohenrent_sentence = coherent_copy[index] 
 
-    # Ensure we do not get the original Arg2
-    while (incoherentArg2 == line['Arg2']['RawText']):
-        index = randint(0, len(arg2s)-1)
-        incoherentArg2 = arg2s[index]
-    arg2s.pop(index) 
+    # Ensure that connection between Arg1 and new Arg2 is not the same as connection between Arg1 and original Arg2
+    # Because this may not be possible for all sentences, we will try a maximum of 1000 times.
+    tries = 0 
+    while (random_cohenrent_sentence['Sense'] in unique_connectives_senses[line['Connective']['RawText']] and tries < 1000):
+        index = randint(0, len(coherent_copy)-1)
+        random_cohenrent_sentence = coherent_copy[index] 
+        tries += 1
+    tries = 0 
+
+    coherent_copy.pop(index)
 
     incoherent_sentence = {
         'Arg1Raw': line['Arg1']['RawText'],
-        'Arg2Raw': incoherentArg2,
+        'Arg2Raw': random_cohenrent_sentence['Arg2Raw'],
         'ConnectiveRaw': line['Connective']['RawText'],
         'Sense': line['Sense'],
     }
@@ -94,19 +98,19 @@ output_sentences(incoherent_sentences, incoherent_output_arg2)
 incoherent_sentences = []
 for line in data:
     # Get a random connective
-    connective_list = sample(unique_connectives, 1)
+    connective_list = sample(unique_connectives_senses, 1)
     connective = connective_list[0]
 
     # Ensure connective does not have the same sense as the original
-    while ((len(set(unique_connectives[connective]).intersection(set([line['Sense']]))) != 0)):
-        connective_list = sample(unique_connectives, 1)
-        connective = connective_list[0]
+    while (line['Sense'] in unique_connectives_senses[connective]):
+        connective_sample = sample(unique_connectives_senses, 1)
+        connective = connective_sample[0]
 
     incoherent_sentence = {
         'Arg1Raw': line['Arg1']['RawText'],
         'Arg2Raw': line['Arg2']['RawText'],
         'ConnectiveRaw': connective,
-        'Sense': next(iter(unique_connectives[connective])), # Issue: this will always be the first element (thus the first possible Sense)
+        'Sense': next(iter(unique_connectives_senses[connective])), # Issue: this will always be the first element (thus the first possible Sense)
     }
     incoherent_sentences.append(incoherent_sentence)
 # Write incoherent sentences to output files 
