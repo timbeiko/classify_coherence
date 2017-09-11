@@ -16,12 +16,12 @@ open('data/connective-incoherent-sentences.json', 'w')
 arg2s = [] 
 connectives = [] 
 
+# Remove sentences with Implicit connectives 
+data = filter(lambda line: line['Type'] != 'Implicit', data)
+
 # Creating coherent sentences
 # Get Arg1, Arg2, Connective and Sense from each sample
 for line in data:
-    if (line['Type'] == 'Implicit'):
-        continue
-
     sentence = {
         'Arg1Raw': line['Arg1']['RawText'],
         'Arg2Raw': line['Arg2']['RawText'],
@@ -29,7 +29,7 @@ for line in data:
         'Sense': line['Sense'],
     }
 
-    # Storing these to create incoherent sentences afterwards
+    # Storing 'arg2s' and 'connectives' to create incoherent sentences afterwards
     arg2s.append(line['Arg2']['RawText'])
 
     connective = {line['Connective']['RawText']: []}
@@ -44,9 +44,6 @@ for line in data:
 
 # Creating incoherent sentences by swapping Arg2s
 for line in data:
-    if (line['Type'] == 'Implicit'):
-        continue
-
     # Get a random Arg2
     index = randint(0, len(arg2s)-1)
     incoherentArg2 = arg2s[index]
@@ -86,9 +83,6 @@ for c, s, in unique_connectives.items():
 
 # Create incoherent sentences by swapping connectives
 for line in data:
-    if (line['Type'] == 'Implicit'):
-        continue
-
     # Get a random connective
     connective_list = sample(unique_connectives, 1)
     connective = connective_list[0]
@@ -105,7 +99,7 @@ for line in data:
         'Arg1Raw': line['Arg1']['RawText'],
         'Arg2Raw': line['Arg2']['RawText'],
         'ConnectiveRaw': connective,
-        'Sense': next(iter(unique_connectives[connective])), # Issue: this will always be the first element (thus the first possible set)
+        'Sense': next(iter(unique_connectives[connective])), # Issue: this will always be the first element (thus the first possible Sense)
     }
 
     # Write incoherent sentences to output files 
