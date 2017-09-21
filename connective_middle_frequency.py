@@ -34,6 +34,7 @@ for filename in os.listdir(os.getcwd()+ "/data"):
 
         # Identify 'middle connective'
         if (arg1_end < conn_start) and (conn_end < arg2_start):
+            connectives['TOTAL'] = connectives.get('TOTAL', 0) + 1
             connectives[line['Connective']['RawText'].lower()] = connectives.get(line['Connective']['RawText'].lower(), 0) + 1
 
 output_file = "data/txt/middle_connective_frequency.txt"
