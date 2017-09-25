@@ -10,7 +10,8 @@ connectives = []
 relations_json =                              'data/relations-01-12-16-dev.json'
 coherent_output =                             'data/coherent-sentences.json'
 incoherent_output_arg2_random =               'data/arg2-random-incoherent-sentences.json'
-incoherent_output_arg2_filtered =             'data/arg2-filtered-incoherent-sentences.json'
+incoherent_output_arg2_diff_sense =             'data/arg2-different-sense-incoherent-sentences.json'
+incoherent_output_arg2_same_sense =             'data/arg2-same-sense-incoherent-sentences.json'
 incoherent_output_arg2_matching_connectives = 'data/arg2-matching-connective-incoherent-sentences.json'
 incoherent_output_connective_random =         'data/connective-random-incoherent-sentences.json'
 incoherent_output_connective_filtered =       'data/connective-filtered-incoherent-sentences.json'
@@ -38,7 +39,9 @@ for line in data:
     line['Sense'] = top_level_sense
 
 # Remove sentences with Implicit connectives 
-data = filter(lambda line: line['Type'] != 'Implicit', data)
+data = filter(lambda line: line['Type'] != 'Explicit', data)
+
+output_sentences(data, "implicit.txt")
 
 # Coherent sentences
 coherent_sentences = []
@@ -88,7 +91,7 @@ for line in data:
 # Write incoherent sentences to output files 
 output_sentences(incoherent_sentences, incoherent_output_arg2_random)
 
-# WITH FILTERING: Incoherent sentences by swapping Arg2s
+# WITH FILTERING: Incoherent sentences by swapping Arg2s (different sense)
 incoherent_sentences = []
 coherent_copy = list(coherent_sentences)
 for line in data:
@@ -115,7 +118,36 @@ for line in data:
 
     incoherent_sentences.append(incoherent_sentence)
 # Write incoherent sentences to output files 
-output_sentences(incoherent_sentences, incoherent_output_arg2_filtered)
+output_sentences(incoherent_sentences, incoherent_output_arg2_diff_sense)
+
+# WITH FILTERING: Incoherent sentences by swapping Arg2s (same sense)
+incoherent_sentences = []
+coherent_copy = list(coherent_sentences)
+for line in data:
+    # Get a random sentence that is not the same as the current one
+    index = randint(0, len(coherent_copy)-1)
+    random_cohenrent_sentence = coherent_copy[index] 
+
+    # Ensure that connection between Arg1 and new Arg2 is the same as connection between Arg1 and original Arg2
+    # Because this may not be possible for all sentences, we will try a maximum of 1000 times.
+    tries = 0 
+    while (random_cohenrent_sentence['Sense'] not in unique_connectives_senses[line['Connective']['RawText']] and tries < 1000):
+        index = randint(0, len(coherent_copy)-1)
+        random_cohenrent_sentence = coherent_copy[index] 
+        tries += 1
+    tries = 0 
+    coherent_copy.pop(index) # Remove sentence with used Arg2 from set of sentences
+
+    incoherent_sentence = {
+        'Arg1Raw': line['Arg1']['RawText'],
+        'Arg2Raw': random_cohenrent_sentence['Arg2Raw'],
+        'ConnectiveRaw': line['Connective']['RawText'],
+        'Sense': line['Sense'],
+    }
+
+    incoherent_sentences.append(incoherent_sentence)
+# Write incoherent sentences to output files 
+output_sentences(incoherent_sentences, incoherent_output_arg2_same_sense)
 
 # MATCHING CONNECTIVE: Incoherent sentences by swapping Arg2s
 incoherent_sentences = []
