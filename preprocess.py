@@ -25,6 +25,15 @@ def output_sentences(sentences, output_file):
             json.dump(sentence, out)
             out.write('\n')
 
+def create_sentence(arg1, arg2, connective, sense):
+    sentence = {
+        'Arg1Raw': arg1,
+        'Arg2Raw': arg2,
+        'ConnectiveRaw': connective,
+        'Sense': sense,
+    }
+    return sentence
+
 # Import relations data as a JSON object 
 for line in open(relations_json, 'r'):
     data.append(json.loads(line))
@@ -40,18 +49,10 @@ for line in data:
 # Remove sentences with Implicit connectives 
 data = filter(lambda line: line['Type'] != 'Explicit', data)
 
-output_sentences(data, "implicit.txt")
-
 # Coherent sentences
 coherent_sentences = []
 for line in data:
-    sentence = {
-        'Arg1Raw': line['Arg1']['RawText'],
-        'Arg2Raw': line['Arg2']['RawText'],
-        'ConnectiveRaw': line['Connective']['RawText'],
-        'Sense': line['Sense'],
-    }
-    coherent_sentences.append(sentence)
+    coherent_sentences.append(create_sentence(line['Arg1']['RawText'], line['Arg2']['RawText'], line['Connective']['RawText'], line['Sense']))
 
     # Store 'arg2s' and 'connectives' to create incoherent sentences afterwards
     connective = {line['Connective']['RawText']: line['Sense']}
