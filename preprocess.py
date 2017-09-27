@@ -52,8 +52,10 @@ data = filter(lambda line: line['Type'] != 'Explicit', data)
 # Coherent sentences
 coherent_sentences = []
 for line in data:
-    coherent_sentences.append(create_sentence(line['Arg1']['RawText'], line['Arg2']['RawText'], line['Connective']['RawText'], line['Sense']))
-
+    coherent_sentences.append(create_sentence(line['Arg1']['RawText'], 
+                                              line['Arg2']['RawText'], 
+                                              line['Connective']['RawText'], 
+                                              line['Sense']))
     # Store 'arg2s' and 'connectives' to create incoherent sentences afterwards
     connective = {line['Connective']['RawText']: line['Sense']}
     connectives.append(connective)
@@ -72,20 +74,15 @@ for i in iter(connectives):
 incoherent_sentences = []
 coherent_copy = list(coherent_sentences)
 for line in data:
-    # Get a random sentence that is not the same as the current one
+    # Get a random sentence 
     index = randint(0, len(coherent_copy)-1)
     random_cohenrent_sentence = coherent_copy[index] 
 
     coherent_copy.pop(index) # Remove sentence with used Arg2 from set of sentences
-
-    incoherent_sentence = {
-        'Arg1Raw': line['Arg1']['RawText'],
-        'Arg2Raw': random_cohenrent_sentence['Arg2Raw'],
-        'ConnectiveRaw': line['Connective']['RawText'],
-        'Sense': line['Sense'],
-    }
-    
-    incoherent_sentences.append(incoherent_sentence)
+    incoherent_sentences.append(create_sentence(line['Arg1']['RawText'],
+                                                random_cohenrent_sentence['Arg2Raw'],
+                                                line['Connective']['RawText'],
+                                                line['Sense']))
 output_sentences(incoherent_sentences, incoherent_sentences_arg2_random)
 
 # RANDOM: Incoherent sentences by swapping connectives
@@ -94,21 +91,17 @@ for line in data:
     # Get a random connective
     connective_list = sample(unique_connectives_senses, 1)
     connective = connective_list[0]
-
-    incoherent_sentence = {
-        'Arg1Raw': line['Arg1']['RawText'],
-        'Arg2Raw': line['Arg2']['RawText'],
-        'ConnectiveRaw': connective,
-        'Sense': next(iter(unique_connectives_senses[connective])), # Issue: this will always be the first element (thus the first possible Sense)
-    }
-    incoherent_sentences.append(incoherent_sentence)
+    incoherent_sentences.append(create_sentence(line['Arg1']['RawText'],
+                                                line['Arg2']['RawText'],
+                                                connective,
+                                                next(iter(unique_connectives_senses[connective])))) # Issue: this will always be the first element (thus the first possible Sense)
 output_sentences(incoherent_sentences, incoherent_sentences_connective_random)
 
 # SAME SENSE: Incoherent sentences by swapping Arg2s
 incoherent_sentences = []
 coherent_copy = list(coherent_sentences)
 for line in data:
-    # Get a random sentence that is not the same as the current one
+    # Get a random sentence 
     index = randint(0, len(coherent_copy)-1)
     random_cohenrent_sentence = coherent_copy[index] 
 
@@ -121,15 +114,10 @@ for line in data:
         tries += 1
     tries = 0 
     coherent_copy.pop(index) # Remove sentence with used Arg2 from set of sentences
-
-    incoherent_sentence = {
-        'Arg1Raw': line['Arg1']['RawText'],
-        'Arg2Raw': random_cohenrent_sentence['Arg2Raw'],
-        'ConnectiveRaw': line['Connective']['RawText'],
-        'Sense': line['Sense'],
-    }
-
-    incoherent_sentences.append(incoherent_sentence)
+    incoherent_sentences.append(create_sentence(line['Arg1']['RawText'],
+                                                random_cohenrent_sentence['Arg2Raw'],
+                                                line['Connective']['RawText'],
+                                                line['Sense']))
 output_sentences(incoherent_sentences, incoherent_sentences_arg2_same_sense)
 
 # DIFFERENT SENSE: Incoherent sentences by swapping Arg2s
@@ -149,15 +137,10 @@ for line in data:
         tries += 1
     tries = 0 
     coherent_copy.pop(index) # Remove sentence with used Arg2 from set of sentences
-
-    incoherent_sentence = {
-        'Arg1Raw': line['Arg1']['RawText'],
-        'Arg2Raw': random_cohenrent_sentence['Arg2Raw'],
-        'ConnectiveRaw': line['Connective']['RawText'],
-        'Sense': line['Sense'],
-    }
-
-    incoherent_sentences.append(incoherent_sentence)
+    incoherent_sentences.append(create_sentence(line['Arg1']['RawText'],
+                                                random_cohenrent_sentence['Arg2Raw'],
+                                                line['Connective']['RawText'],
+                                                line['Sense']))
 output_sentences(incoherent_sentences, incoherent_sentences_arg2_diff_sense)
 
 # MATCHING CONNECTIVE: Incoherent sentences by swapping Arg2s
@@ -180,15 +163,10 @@ for line in data:
     tries = 0 
 
     coherent_copy.pop(index) # Remove sentence with used Arg2 from set of sentences
-
-    incoherent_sentence = {
-        'Arg1Raw': line['Arg1']['RawText'],
-        'Arg2Raw': random_cohenrent_sentence['Arg2Raw'],
-        'ConnectiveRaw': line['Connective']['RawText'],
-        'Sense': line['Sense'],
-    }
-
-    incoherent_sentences.append(incoherent_sentence)
+    incoherent_sentences.append(create_sentence(line['Arg1']['RawText'],
+                                                random_cohenrent_sentence['Arg2Raw'],
+                                                line['Connective']['RawText'],
+                                                line['Sense']))
 output_sentences(incoherent_sentences, incoherent_sentences_arg2_matching_connectives)
 
 # DIFFERENT SENSE CONNECTIVE: Incoherent sentences by swapping connectives
@@ -202,12 +180,8 @@ for line in data:
     while (line['Sense'] in unique_connectives_senses[connective]):
         connective_sample = sample(unique_connectives_senses, 1)
         connective = connective_sample[0]
-
-    incoherent_sentence = {
-        'Arg1Raw': line['Arg1']['RawText'],
-        'Arg2Raw': line['Arg2']['RawText'],
-        'ConnectiveRaw': connective,
-        'Sense': next(iter(unique_connectives_senses[connective])), # Issue: this will always be the first element (thus the first possible Sense)
-    }
-    incoherent_sentences.append(incoherent_sentence)
+    incoherent_sentences.append(create_sentence(line['Arg1']['RawText'],
+                                                line['Arg2']['RawText'],
+                                                connective,
+                                                next(iter(unique_connectives_senses[connective]))))
 output_sentences(incoherent_sentences, incoherent_sentences_connective_diff_sense)
