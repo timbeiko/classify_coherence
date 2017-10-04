@@ -23,9 +23,11 @@ for filename in os.listdir(os.getcwd()+ "/data/json"):
     out = open(output_file, 'a+')
 
     for line in data:
+        # Convert to raw text
         sentence = line['Arg1Raw'] + " " + line['ConnectiveRaw'] + " " + line['Arg2Raw'] + "\n"
-        out.write(sentence)
+        out.write(sentence) 
 
+        # Tokenize sentence and build dictionary + corpus stats 
         word_sentence = nltk.word_tokenize(sentence.lower())
         if len(word_sentence) > max_sentence_length:
             max_sentence_length = len(word_sentence)
@@ -39,13 +41,17 @@ for filename in os.listdir(os.getcwd()+ "/data/json"):
                     most_frequent_word = word
                     most_frequent_word_freq = dictionary[word]
 
-# Output dictionary and map words to integers
+# Output dictionary and create mapping of terms to integers
+index = 1
 open("data/dictionary.txt", 'w') # Clear contents of file 
 dict_file = open("data/dictionary.txt", 'a+')
+# Used for padding sentences to max_sentence_length
+mapped_dictionary["<pad>"] = 0
+dict_file.write("0 <pad> -1\n")
 
-index = 0 
-for key in sorted(set(dictionary.keys())):
-    mapped_dictionary[key] = index
+# Print all terms from dictionary and map them to integers in mapped_dictionary
+for key in sorted(dictionary.keys()):
+    mapped_dictionary[key.lower()] = index
     entry = str(index) + " " + key + " " + str(dictionary[key]) + "\n"
     dict_file.write(entry)
     index += 1 
@@ -59,16 +65,19 @@ stats_file.write("Most frequent word frequency: " + str(most_frequent_word_freq)
 stats_file.write("Unique terms in dictionary: " + str(len(dictionary.keys())) + "\n")
 stats_file.write("Max sentence length: " + str(max_sentence_length) + "\n")
 
-# Pad all sentences to max_sentence_length and make all words lowercase
+# Pad all sentences to max_sentence_length and covert sentences to integer representation
 for filename in os.listdir(os.getcwd()+ "/data/txt"):
     # Import data as a JSON object 
     data = []
     for line in open("data/txt/" + filename, 'r'):
-        tokenized_line = nltk.word_tokenize(line)
+        tokenized_line = nltk.word_tokenize(line.lower())
+
+        # Pad sentences
         while (len(tokenized_line) < max_sentence_length):
-            tokenized_line.append("<PAD>")
+            tokenized_line.append("<pad>")
         data.append(tokenized_line)
 
+    # Output padded sentences
     output_file = "data/padded/" + filename[:-4] + ".txt"
     open(output_file, 'w') # Clear contents of file 
     out = open(output_file, 'a+')
@@ -78,3 +87,11 @@ for filename in os.listdir(os.getcwd()+ "/data/txt"):
             out.write(word.lower() + " ")
         out.write("\n") 
 
+    # Output integer sentences
+    output_file = "data/integers/" + filename[:-4] + ".txt"
+    open(output_file, 'w') # Clear contents of file 
+    out = open(output_file, 'a+')    
+    for sentence in data:
+        for word in sentence:
+            out.write(str(mapped_dictionary[word.lower()]) + " ")
+        out.write("\n")
