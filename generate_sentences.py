@@ -6,15 +6,16 @@ from collections import defaultdict
 data = []          
 connectives = []    
 
-# Output files 
+# Input
 relations_json =                                   'data/relations-01-12-16-dev.json'
-coherent_sentences_file =                          'data/coherent_sentences.json'
-incoherent_sentences_arg2_random =                 'data/incoherent_sentences_arg2_random.json'
-incoherent_sentences_connective_random =           'data/incoherent_sentences_connective_random.json'
-incoherent_sentences_arg2_same_sense =             'data/incoherent_sentences_arg2_same_sense.json'
-incoherent_sentences_arg2_diff_sense =             'data/incoherent_sentences_arg2_diff_sense.json'
-incoherent_sentences_arg2_matching_connectives =   'data/incoherent_sentences_arg2_matching_connectives.json'
-incoherent_sentences_connective_diff_sense =       'data/incoherent_sentences_connective_diff_sense.json'
+# Output files 
+coherent_sentences_file =                          'data/json/coherent_sentences.json'
+incoherent_sentences_arg2_random =                 'data/json/incoherent_sentences_arg2_random.json'
+incoherent_sentences_connective_random =           'data/json/incoherent_sentences_connective_random.json'
+incoherent_sentences_arg2_same_sense =             'data/json/incoherent_sentences_arg2_same_sense.json'
+incoherent_sentences_arg2_diff_sense =             'data/json/incoherent_sentences_arg2_diff_sense.json'
+incoherent_sentences_arg2_matching_connectives =   'data/json/incoherent_sentences_arg2_matching_connectives.json'
+incoherent_sentences_connective_diff_sense =       'data/json/incoherent_sentences_connective_diff_sense.json'
 
 # Helper methods 
 def output_sentences(sentences, output_file):
