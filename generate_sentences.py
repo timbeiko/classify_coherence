@@ -7,7 +7,7 @@ data = []
 connectives = []    
 
 # Input
-relations_json =                                   'data/relations-01-12-16-dev.json'
+relations_json =                                   'data/relations-01-12-16-train.json'
 # Output files 
 coherent_sentences_file =                          'data/json/coherent_sentences.json'
 incoherent_sentences_arg2_random =                 'data/json/incoherent_sentences_arg2_random.json'

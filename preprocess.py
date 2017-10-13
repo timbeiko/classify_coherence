@@ -25,13 +25,18 @@ for filename in os.listdir(os.getcwd()+ "/data/json"):
     for line in data:
         # Convert to raw text
         sentence = line['Arg1Raw'] + " " + line['ConnectiveRaw'] + " " + line['Arg2Raw'] + "\n"
-        out.write(sentence) 
+        out.write(sentence.encode('ascii', 'ignore')) 
 
         # Tokenize sentence and build dictionary + corpus stats 
         word_sentence = nltk.word_tokenize(sentence.lower())
         if len(word_sentence) > max_sentence_length:
             max_sentence_length = len(word_sentence)
         for word in word_sentence:
+            try: 
+                word = word.decode('utf8').encode('ascii', errors='ignore')
+            except UnicodeEncodeError:
+                stripped = (c for c in word if 0 < ord(c) < 127)
+                word = ''.join(stripped)
             total_words += 1
             if word not in dictionary:
                 dictionary[word] = 1
@@ -55,6 +60,7 @@ for key in sorted(dictionary.keys()):
     entry = str(index) + " " + key + " " + str(dictionary[key]) + "\n"
     dict_file.write(entry)
     index += 1 
+
 
 # Output corpus stats
 open("data/corpus_stats.txt", 'w') # Clear contents of file 
