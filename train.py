@@ -10,19 +10,19 @@ from tensorflow.contrib import learn
 # ==================================================
 # Data loading params
 tf.flags.DEFINE_float("dev_sample_percentage", .1, "Percentage of the training data to use for validation")
-tf.flags.DEFINE_string("coherent_data_file", "./data/padded/coherent_sentences.txt", "Data source for the coherent data.")
-tf.flags.DEFINE_string("incoherent_data_file", "./data/padded/incoherent_sentences_arg2_diff_sense.txt", "Data source for the incoherent data.")
+tf.flags.DEFINE_string("coherent_data_file", "./data/rt-polaritydata/rt-polarity.pos", "Data source for the coherent data.")
+tf.flags.DEFINE_string("incoherent_data_file", "./data/rt-polaritydata/rt-polarity.neg", "Data source for the incoherent data.")
 
 # Model Hyperparameters
 tf.flags.DEFINE_string("word2vec", "./data/model/GoogleNews-vectors-negative300.bin", "Word2vec file with pre-trained embeddings (default: None)")
 tf.flags.DEFINE_integer("embedding_dim", 300, "Dimensionality of character embedding (default: 300, to match GoogleNews embeddings)")
 tf.flags.DEFINE_string("filter_sizes", "4", "Comma-separated filter sizes (default: '3,4,5')")
-tf.flags.DEFINE_integer("num_filters", 32, "Number of filters per filter size (default: 128)")
+tf.flags.DEFINE_integer("num_filters", 16, "Number of filters per filter size (default: 128)")
 tf.flags.DEFINE_float("dropout_keep_prob", 0.5, "Dropout keep probability (default: 0.5)")
 tf.flags.DEFINE_float("l2_reg_lambda", 0, "L2 regularization lambda (default: 0.0)")
 
 # Training parameters
-tf.flags.DEFINE_integer("batch_size", 32, "Batch Size (default: 64)")
+tf.flags.DEFINE_integer("batch_size", 64, "Batch Size (default: 64)")
 tf.flags.DEFINE_integer("num_epochs", 200, "Number of training epochs (default: 200)")
 tf.flags.DEFINE_integer("evaluate_every", 100, "Evaluate model on dev set after this many steps (default: 100)")
 tf.flags.DEFINE_integer("checkpoint_every", 100, "Save model after this many steps (default: 100)")
@@ -185,7 +185,7 @@ with tf.Graph().as_default():
             print("{}: step {}, loss {:g}, acc {:g}".format(time_str, step, loss, accuracy))
             train_summary_writer.add_summary(summaries, step)
 
-        def dev_step(x_batch, y_batch, writer=None):
+        def dev_step(x_batch, y_batch, best_dev_acc, best_dev_step, writer=None):
             """
             Evaluates model on a dev set
             """
@@ -198,9 +198,14 @@ with tf.Graph().as_default():
                 [global_step, dev_summary_op, cnn.loss, cnn.accuracy],
                 feed_dict)
             time_str = datetime.datetime.now().isoformat()
+            if accuracy > best_dev_acc:
+                best_dev_acc = accuracy
+                best_dev_step = step 
             print("{}: step {}, loss {:g}, acc {:g}".format(time_str, step, loss, accuracy))
+            print("Best accuracy: {:g} at step {}".format(best_dev_acc, best_dev_step))
             if writer:
                 writer.add_summary(summaries, step)
+            return best_dev_acc, best_dev_step
 
         def batch_iter(data, batch_size, num_epochs, shuffle=True):
             """
@@ -226,13 +231,15 @@ with tf.Graph().as_default():
             list(zip(x_train, y_train)), FLAGS.batch_size, FLAGS.num_epochs)
         
         # Training loop. For each batch...
+        best_dev_acc = 0 
+        best_dev_step = 0 
         for batch in batches:
             x_batch, y_batch = zip(*batch)
             train_step(x_batch, y_batch)
             current_step = tf.train.global_step(sess, global_step)
             if current_step % FLAGS.evaluate_every == 0:
                 print("\nEvaluation:")
-                dev_step(x_dev, y_dev, writer=dev_summary_writer)
+                best_dev_acc, best_dev_step = dev_step(x_dev, y_dev, best_dev_acc, best_dev_step, writer=dev_summary_writer)
                 print("")
             if current_step % FLAGS.checkpoint_every == 0:
                 path = saver.save(sess, checkpoint_prefix, global_step=current_step)
