@@ -11,12 +11,23 @@ most_frequent_word = ""
 most_frequent_word_freq = 0
 total_words = 0 
 
+# Stats output file
+open("data/corpus_stats.txt", 'w') # Clear contents of file 
+stats_file = open("data/corpus_stats.txt", 'a+')
+
 # Build dictionary and convert sentences to raw text 
+print("Converting to raw text")
 for filename in os.listdir(os.getcwd()+ "/data/json"):
+    # Variables for file-specific data 
+    file_max_sentence_length = 0
+    file_num_sentences = 0
+    file_dict = {}
+
     # Import data as a JSON object 
     data = []
     for line in open("data/json/" + filename, 'r'):
         data.append(json.loads(line))
+        file_num_sentences += 1 
 
     output_file = "data/txt/" + filename[:-5] + ".txt"
     open(output_file, 'w') # Clear contents of file 
@@ -31,6 +42,12 @@ for filename in os.listdir(os.getcwd()+ "/data/json"):
         word_sentence = nltk.word_tokenize(sentence.lower())
         if len(word_sentence) > max_sentence_length:
             max_sentence_length = len(word_sentence)
+        if len(word_sentence) > file_max_sentence_length:
+            file_max_sentence_length = len(word_sentence)
+
+        if len(word_sentence) > 400:
+            print word_sentence
+
         for word in word_sentence:
             try: 
                 word = word.decode('utf8').encode('ascii', errors='ignore')
@@ -45,6 +62,15 @@ for filename in os.listdir(os.getcwd()+ "/data/json"):
                 if dictionary[word] > most_frequent_word_freq:
                     most_frequent_word = word
                     most_frequent_word_freq = dictionary[word]
+
+            if word not in file_dict:
+                file_dict[word] = True 
+
+    # Output File Stats 
+    stats_file.write(filename + " stats:\n")
+    stats_file.write("# words: " + str(len(file_dict.keys())) + "\n")
+    stats_file.write("# sentences: " + str(file_num_sentences) + "\n")
+    stats_file.write("Max sentence length: " + str(file_max_sentence_length) + "\n")
 
 # Output dictionary and create mapping of terms to integers
 index = 1
@@ -63,14 +89,15 @@ for key in sorted(dictionary.keys()):
 
 
 # Output corpus stats
-open("data/corpus_stats.txt", 'w') # Clear contents of file 
-stats_file = open("data/corpus_stats.txt", 'a+')
 stats_file.write("Total words: " + str(total_words) + "\n")
 stats_file.write("Most frequent word: " + str(most_frequent_word) + "\n")
 stats_file.write("Most frequent word frequency: " + str(most_frequent_word_freq) + "\n")
 stats_file.write("Unique terms in dictionary: " + str(len(dictionary.keys())) + "\n")
 stats_file.write("Max sentence length: " + str(max_sentence_length) + "\n")
 
+
+print("Converting to integer")
+# Not really needed because Tensorflow does it. 
 # Pad all sentences to max_sentence_length and covert sentences to integer representation
 for filename in os.listdir(os.getcwd()+ "/data/txt"):
     # Import data as a JSON object 

@@ -1,6 +1,9 @@
 # Classify Coherence
 An attempt to classify sentences from the Penn Discourse Treebank as either coherent or incoherent. 
 
+## TODO
+- word2vec embeddings 
+
 ### Getting Started
 Hopefully, everything should run and there should be no funky dependencies. 
 Because the PDTB data is not available freely, it has not been uploaded to this repo. 

@@ -3,7 +3,7 @@
 import tensorflow as tf
 import numpy as np
 
-class TextCNN(object):
+class CNN(object):
     """
     A CNN for text classification.
     Uses an embedding layer, followed by a convolutional, max-pooling and softmax layer.
