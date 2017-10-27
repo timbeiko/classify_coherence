@@ -3,6 +3,7 @@
 import os 
 import nltk 
 import json 
+import random
 
 dictionary = {}
 mapped_dictionary = {}
@@ -10,6 +11,23 @@ max_sentence_length = 0
 most_frequent_word = ""
 most_frequent_word_freq = 0
 total_words = 0 
+
+def randomize_words_in_sentence(filename):
+    data = []
+    open("data/txt/incoherent_sentences_randomized_words.txt", 'w') # Clear contents of file 
+    randomized_file = open("data/txt/incoherent_sentences_randomized_words.txt", 'a+')
+
+    for line in open("data/json/" + filename, 'r'):
+        data.append(json.loads(line))
+
+    for line in data:
+        sentence = line['Arg1Raw'] + " " + line['ConnectiveRaw'] + " " + line['Arg2Raw'] + "\n"
+        word_sentence = nltk.word_tokenize(sentence.lower())
+        random.shuffle(word_sentence)
+        for word in word_sentence:
+            randomized_file.write(word.encode('ascii', 'ignore') + " ")
+        randomized_file.write('\n')
+
 
 # Stats output file
 open("data/corpus_stats.txt", 'w') # Clear contents of file 
@@ -40,13 +58,12 @@ for filename in os.listdir(os.getcwd()+ "/data/json"):
 
         # Tokenize sentence and build dictionary + corpus stats 
         word_sentence = nltk.word_tokenize(sentence.lower())
+
+        # Find maximum sentence length
         if len(word_sentence) > max_sentence_length:
             max_sentence_length = len(word_sentence)
         if len(word_sentence) > file_max_sentence_length:
             file_max_sentence_length = len(word_sentence)
-
-        if len(word_sentence) > 400:
-            print word_sentence
 
         for word in word_sentence:
             try: 
@@ -65,6 +82,9 @@ for filename in os.listdir(os.getcwd()+ "/data/json"):
 
             if word not in file_dict:
                 file_dict[word] = True 
+
+    if filename == 'incoherent_sentences_arg2_diff_sense.json':
+        randomize_words_in_sentence(filename)
 
     # Output File Stats 
     stats_file.write(filename + " stats:\n")
