@@ -1,10 +1,9 @@
-# Flags and training loop from https://github.com/dennybritz/cnn-text-classification-tf/blob/master/train.py
 import tensorflow as tf
 import numpy as np
 import os
 import time
 import datetime
-from cnn import TextCNN
+from cnn import CNN
 from tensorflow.contrib import learn
 
 # Flags
@@ -15,7 +14,8 @@ tf.flags.DEFINE_string("coherent_data_file", "./data/padded/coherent_sentences.t
 tf.flags.DEFINE_string("incoherent_data_file", "./data/padded/incoherent_sentences_arg2_diff_sense.txt", "Data source for the incoherent data.")
 
 # Model Hyperparameters
-tf.flags.DEFINE_integer("embedding_dim", 128, "Dimensionality of character embedding (default: 128)")
+tf.flags.DEFINE_string("word2vec", "./data/model/GoogleNews-vectors-negative300.bin", "Word2vec file with pre-trained embeddings (default: None)")
+tf.flags.DEFINE_integer("embedding_dim", 300, "Dimensionality of character embedding (default: 300, to match GoogleNews embeddings)")
 tf.flags.DEFINE_string("filter_sizes", "4", "Comma-separated filter sizes (default: '3,4,5')")
 tf.flags.DEFINE_integer("num_filters", 32, "Number of filters per filter size (default: 128)")
 tf.flags.DEFINE_float("dropout_keep_prob", 0.5, "Dropout keep probability (default: 0.5)")
@@ -142,6 +142,32 @@ with tf.Graph().as_default():
 
         # Initialize all variables
         sess.run(tf.global_variables_initializer())
+
+        if FLAGS.word2vec:
+            # initial matrix with random uniform
+            initW = np.random.uniform(-0.25,0.25,(len(vocab_processor.vocabulary_), FLAGS.embedding_dim))
+            # load any vectors from the word2vec
+            print("Load word2vec file {}\n".format(FLAGS.word2vec))
+            with open(FLAGS.word2vec, "rb") as f:
+                header = f.readline()
+                vocab_size, layer1_size = map(int, header.split())
+                binary_len = np.dtype('float32').itemsize * layer1_size
+                for line in xrange(vocab_size):
+                    word = []
+                    while True:
+                        ch = f.read(1)
+                        if ch == ' ':
+                            word = ''.join(word)
+                            break
+                        if ch != '\n':
+                            word.append(ch)   
+                    idx = vocab_processor.vocabulary_.get(word)
+                    if idx != 0:
+                        initW[idx] = np.fromstring(f.read(binary_len), dtype='float32')  
+                    else:
+                        f.read(binary_len)    
+
+            sess.run(cnn.W.assign(initW))
 
         def train_step(x_batch, y_batch):
             """

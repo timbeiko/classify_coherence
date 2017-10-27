@@ -1,5 +1,3 @@
-# From https://github.com/dennybritz/cnn-text-classification-tf/blob/master/text_cnn.py
-
 import tensorflow as tf
 import numpy as np
 
