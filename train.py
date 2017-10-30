@@ -10,8 +10,8 @@ from tensorflow.contrib import learn
 # ==================================================
 # Data loading params
 tf.flags.DEFINE_float("dev_sample_percentage", .1, "Percentage of the training data to use for validation")
-tf.flags.DEFINE_string("coherent_data_file", "./data/txt/coherent_sentences.txt", "Data source for the coherent data.")
-tf.flags.DEFINE_string("incoherent_data_file", "./data/random/incoherent_sentences_arg2_diff_sense_gamma_0.4.txt", "Data source for the incoherent data.")
+tf.flags.DEFINE_string("coherent_data_file", "./data/random/coherent_sentences.txt", "Data source for the coherent data.")
+tf.flags.DEFINE_string("incoherent_data_file", "./data/random/incoherent_sentences_arg2_diff_sense_gamma_0.txt", "Data source for the incoherent data.")
 
 # Model Hyperparameters
 tf.flags.DEFINE_string("word2vec", "./data/model/GoogleNews-vectors-negative300.bin", "Word2vec file with pre-trained embeddings (default: None)")

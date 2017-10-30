@@ -115,36 +115,35 @@ stats_file.write("Most frequent word frequency: " + str(most_frequent_word_freq)
 stats_file.write("Unique terms in dictionary: " + str(len(dictionary.keys())) + "\n")
 stats_file.write("Max sentence length: " + str(max_sentence_length) + "\n")
 
+# # Not really needed because Tensorflow does it. 
+# print("Converting to integer")
+# # Pad all sentences to max_sentence_length and covert sentences to integer representation
+# for filename in os.listdir(os.getcwd()+ "/data/txt"):
+#     # Import data as a JSON object 
+#     data = []
+#     for line in open("data/txt/" + filename, 'r'):
+#         tokenized_line = nltk.word_tokenize(line.lower())
 
-print("Converting to integer")
-# Not really needed because Tensorflow does it. 
-# Pad all sentences to max_sentence_length and covert sentences to integer representation
-for filename in os.listdir(os.getcwd()+ "/data/txt"):
-    # Import data as a JSON object 
-    data = []
-    for line in open("data/txt/" + filename, 'r'):
-        tokenized_line = nltk.word_tokenize(line.lower())
+#         # Pad sentences
+#         while (len(tokenized_line) < max_sentence_length):
+#             tokenized_line.append("<pad>")
+#         data.append(tokenized_line)
 
-        # Pad sentences
-        while (len(tokenized_line) < max_sentence_length):
-            tokenized_line.append("<pad>")
-        data.append(tokenized_line)
+#     # Output padded sentences
+#     output_file = "data/padded/" + filename[:-4] + ".txt"
+#     open(output_file, 'w') # Clear contents of file 
+#     out = open(output_file, 'a+')
 
-    # Output padded sentences
-    output_file = "data/padded/" + filename[:-4] + ".txt"
-    open(output_file, 'w') # Clear contents of file 
-    out = open(output_file, 'a+')
+#     for sentence in data:
+#         for word in sentence:
+#             out.write(word.lower() + " ")
+#         out.write("\n") 
 
-    for sentence in data:
-        for word in sentence:
-            out.write(word.lower() + " ")
-        out.write("\n") 
-
-    # Output integer sentences
-    output_file = "data/integers/" + filename[:-4] + ".txt"
-    open(output_file, 'w') # Clear contents of file 
-    out = open(output_file, 'a+')    
-    for sentence in data:
-        for word in sentence:
-            out.write(str(mapped_dictionary[word.lower()]) + " ")
-        out.write("\n")
+#     # Output integer sentences
+#     output_file = "data/integers/" + filename[:-4] + ".txt"
+#     open(output_file, 'w') # Clear contents of file 
+#     out = open(output_file, 'a+')    
+#     for sentence in data:
+#         for word in sentence:
+#             out.write(str(mapped_dictionary[word.lower()]) + " ")
+#         out.write("\n")

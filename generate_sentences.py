@@ -28,10 +28,10 @@ def output_sentences(sentences, output_file):
 
 def create_sentence(arg1, arg2, connective, sense):
     sentence = {
-        'Arg1Raw': arg1,
-        'Arg2Raw': arg2,
-        'ConnectiveRaw': connective,
-        'Sense': sense,
+        'Arg1Raw': arg1.lower(),
+        'Arg2Raw': arg2.lower(),
+        'ConnectiveRaw': connective.lower(),
+        'Sense': sense.lower(),
     }
     return sentence
 

@@ -4,10 +4,29 @@ import json
 import random
 import numpy as np 
 
+# Coherent sentences
+coherent_file = 'coherent_sentences.json'
+file_content = []
+for line in open("data/json/" + coherent_file, 'r'):
+    file_content.append(json.loads(line))
+
+
+outfile = "data/random/coherent_sentences.txt"
+open(outfile, 'w') # Clear contents of file 
+coherent_output = open(outfile, 'a+')
+
+for line in file_content:
+    Arg1 = nltk.word_tokenize(line['Arg1Raw'].lower()) 
+    Arg2 = nltk.word_tokenize(line['Arg2Raw'].lower())
+    Conn = nltk.word_tokenize(line['ConnectiveRaw'].lower())
+    sentence = " ".join(Arg1) + " " + " ".join(Conn) + " " + " ".join(Arg2) + "\n"
+    coherent_output.write(sentence.encode('ascii', 'ignore'))
+
+
+# Incoherent sentences
+file_content = []
 file_to_randomize = 'incoherent_sentences_arg2_diff_sense.json'
 gammas = np.arange(0.0, 1.1,0.1)
-file_content = []
-
 for line in open("data/json/" + file_to_randomize, 'r'):
     file_content.append(json.loads(line))
 
@@ -51,4 +70,4 @@ for gamma in gammas:
 
 
         sentence = " ".join(Arg1) + " " + " ".join(Conn) + " " + " ".join(shuffled_Arg2) + "\n"
-        randomized_file.write(sentence.encode('ascii', 'ignore') + " ")
+        randomized_file.write(sentence.encode('ascii', 'ignore'))
