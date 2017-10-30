@@ -11,12 +11,12 @@ from tensorflow.contrib import learn
 # Data loading params
 tf.flags.DEFINE_float("dev_sample_percentage", .1, "Percentage of the training data to use for validation")
 tf.flags.DEFINE_string("coherent_data_file", "./data/txt/coherent_sentences.txt", "Data source for the coherent data.")
-tf.flags.DEFINE_string("incoherent_data_file", "./data/txt/incoherent_sentences_randomized_words.txt", "Data source for the incoherent data.")
+tf.flags.DEFINE_string("incoherent_data_file", "./data/random/incoherent_sentences_arg2_diff_sense_gamma_1.txt", "Data source for the incoherent data.")
 
 # Model Hyperparameters
 tf.flags.DEFINE_string("word2vec", "./data/model/GoogleNews-vectors-negative300.bin", "Word2vec file with pre-trained embeddings (default: None)")
 tf.flags.DEFINE_integer("embedding_dim", 300, "Dimensionality of character embedding (default: 300, to match GoogleNews embeddings)")
-tf.flags.DEFINE_string("filter_sizes", "4", "Comma-separated filter sizes (default: '3,4,5')")
+tf.flags.DEFINE_string("filter_sizes", "3", "Comma-separated filter sizes (default: '3,4,5')")
 tf.flags.DEFINE_integer("num_filters", 16, "Number of filters per filter size (default: 128)")
 tf.flags.DEFINE_float("dropout_keep_prob", 0.5, "Dropout keep probability (default: 0.5)")
 tf.flags.DEFINE_float("l2_reg_lambda", 0, "L2 regularization lambda (default: 0.0)")

@@ -47,8 +47,11 @@ for line in data:
         top_level_sense = split_sense[0]
     line['Sense'] = top_level_sense
 
-# Remove sentences with Implicit connectives 
+# Remove sentences with Explicit connectives 
 data = filter(lambda line: line['Type'] != 'Explicit', data)
+# Remove sentences with "" as Connective
+data = filter(lambda line: line['Connective']['RawText'] != '', data)
+data = filter(lambda line: line['Connective']['RawText'] != "", data)
 
 # Coherent sentences
 coherent_sentences = []

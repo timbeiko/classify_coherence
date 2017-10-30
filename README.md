@@ -11,6 +11,7 @@ data/integers
     /padded
     /txt
     /model
+    /random
 ```
 Once you have these, you will need to add a PDTB `relations-XX-XX-XX-{dev | train | test}.json` file to the `/data` directory, and update the value of `relations_json` in `generate_sentences.py` (declared around line 10) to the name of that file. 
 
