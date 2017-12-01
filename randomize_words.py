@@ -30,12 +30,14 @@ gammas = np.arange(0.0, 1.1,0.1)
 for line in open("data/json/" + file_to_randomize, 'r'):
     file_content.append(json.loads(line))
 
+# Gammas represent the probability of a word being shuffled
 for gamma in gammas: 
     outfile = "data/random/{}_gamma_{:g}.txt".format(file_to_randomize[:-5], gamma)
     open(outfile, 'w') # Clear contents of file 
     randomized_file = open(outfile, 'a+')
 
     for line in file_content:
+        # Get Arg1, Arg2 and Conn
         Arg1 = nltk.word_tokenize(line['Arg1Raw'].lower()) 
         Arg2 = nltk.word_tokenize(line['Arg2Raw'].lower())
         Conn = nltk.word_tokenize(line['ConnectiveRaw'].lower())
@@ -50,6 +52,7 @@ for gamma in gammas:
 
         shuffled_Arg2 = []
 
+        # If we have words to shuffle, shuffle them 
         if len(words_to_shuffle) > 1:
             for i, word in enumerate(Arg2):
                 if Arg2_index_shuffle[i] == True:
@@ -61,6 +64,7 @@ for gamma in gammas:
                         replacement_word = random.choice(words_to_shuffle)
                         tries += 1
 
+                    # Add shuffled word, remove from words to shuffle 
                     shuffled_Arg2.append(replacement_word)
                     words_to_shuffle.remove(replacement_word)
                 else:
@@ -68,6 +72,6 @@ for gamma in gammas:
         else:
             shuffled_Arg2 = Arg2
 
-
+        # Shuffled sentence 
         sentence = " ".join(Arg1) + " " + " ".join(Conn) + " " + " ".join(shuffled_Arg2) + "\n"
         randomized_file.write(sentence.encode('ascii', 'ignore'))

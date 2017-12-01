@@ -37,6 +37,7 @@ for filename in os.listdir(os.getcwd()+ "/data"):
             connectives['TOTAL'] = connectives.get('TOTAL', 0) + 1 # Count total number of middle connectives 
             connectives[line['Connective']['RawText'].lower()] = connectives.get(line['Connective']['RawText'].lower(), 0) + 1
 
+# Output results
 output_file = "data/txt/middle_connective_frequency.txt"
 open(output_file, 'w') # Clear contents of file 
 out = open(output_file, 'a+')

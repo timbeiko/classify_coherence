@@ -65,6 +65,7 @@ for filename in os.listdir(os.getcwd()+ "/data/json"):
         if len(word_sentence) > file_max_sentence_length:
             file_max_sentence_length = len(word_sentence)
 
+        # Build dictionary
         for word in word_sentence:
             try: 
                 word = word.decode('utf8').encode('ascii', errors='ignore')
@@ -83,6 +84,7 @@ for filename in os.listdir(os.getcwd()+ "/data/json"):
             if word not in file_dict:
                 file_dict[word] = True 
 
+    # Get one dataset with words fully randomized 
     if filename == 'incoherent_sentences_arg2_diff_sense.json':
         randomize_words_in_sentence(filename)
 

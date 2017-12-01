@@ -17,7 +17,7 @@ with open(CROWDFLOWER_DIR + "/samples.csv", 'a+') as csvfile:
         num_lines = sum(1 for line in open(filepath, 'r'))
 
         # Randomly get 101 lines in the file
-        sample_lines = random.sample(range(1, num_lines), 101)
+        sample_lines = random.sample(range(1, num_lines), 51)
         i = 0 
         for line in open(filepath, 'r'):
             if i in sample_lines:
